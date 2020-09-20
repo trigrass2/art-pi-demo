@@ -11,22 +11,45 @@
 #include <rtthread.h>
 #include <rtdevice.h>
 #include "drv_common.h"
+#include <netdev_ipaddr.h>
+#include <ntp.h>
+#include <netdev.h>
+#include <wlan_mgnt.h>
 
-#define LED_PIN GET_PIN(I, 8)
+#include "web.h"
+#include "basic.h"
+#include "filesystem.h"
+#include "monitor.h"
+#include "bt_module.h"
+
+#define DBG_TAG "main"
+#define DBG_LVL DBG_LOG
+#include <rtdbg.h>
+
+extern int ftp_init(void);
 
 int main(void)
 {
-    rt_uint32_t count = 1;
-
-    rt_pin_mode(LED_PIN, PIN_MODE_OUTPUT);
-
-    while(count++)
+    filesystem_init();
+    basic_init();
+    sys_monitor_init();
+    bluetooth_init();
+    web_init();
+    while (!rt_wlan_is_ready())
     {
         rt_thread_mdelay(500);
-        rt_pin_write(LED_PIN, PIN_HIGH);
-        rt_thread_mdelay(500);
-        rt_pin_write(LED_PIN, PIN_LOW);
     }
+    ftp_init();
+    while (1)
+    {
+        rt_thread_mdelay(1000);
+    }
+    //    while (ntp_sync_to_rtc(NULL) == 0)
+    //    {
+    //        rt_thread_mdelay(5000);
+    //    }
+    //    LOG_I("NTP sync success");
+
     return RT_EOK;
 }
 
@@ -38,5 +61,3 @@ static int vtor_config(void)
     return 0;
 }
 INIT_BOARD_EXPORT(vtor_config);
-
-

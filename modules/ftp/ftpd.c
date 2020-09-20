@@ -1,4 +1,3 @@
-#include <sys/time.h>
 #include <dfs_posix.h>
 #include <sys/socket.h>
 #include <sys/select.h>
